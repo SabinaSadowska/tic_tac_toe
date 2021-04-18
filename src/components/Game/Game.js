@@ -19,11 +19,12 @@ import {
 } from "../../modules/game/game.action";
 
 class Game extends Component {
-  changeTurn(currentTurn) {
-    this.props.actionChangeTurn(currentTurn);
-  }
-
   winCoordinates = null;
+
+  handleWin(mark) {
+    this.props.actionChangePlayerScore(mark);
+    this.props.actionSetGameStatus("win");
+  }
 
   checkSquares(index1, index2, index3) {
     const squares = this.props.squares;
@@ -37,13 +38,9 @@ class Game extends Component {
       let winner = squares[index2].player;
       this.winCoordinates = [index1, index2, index3];
       if (winner === "x") {
-        console.log("won x");
-        this.props.changePlayerScore("x");
-        this.props.actionSetGameStatus("win");
+        this.handleWin("x");
       } else {
-        console.log("won o");
-        this.props.changePlayerScore("o");
-        this.props.actionSetGameStatus("win");
+        this.handleWin("o");
       }
 
       return true;
@@ -68,25 +65,19 @@ class Game extends Component {
       : null;
   }
 
-  checkStatus() {
-    return this.props.actionSetGameStatus(this.winner);
-  }
-
   handlePlayerClick(player, squareId, disabled) {
     if (disabled) {
       return;
     }
-
     if (this.props.gameStatus) {
       return;
     }
-
     this.props.actionSetType(player, squareId);
     this.props.changeTurn(player);
     setTimeout(() => this.checkWinner(), 200);
   }
 
-  handlePlayAgain(winner) {
+  playAgain(winner) {
     winner = false;
     this.winCoordinates = false;
     return this.props.actionPlayAgain();
@@ -94,36 +85,20 @@ class Game extends Component {
 
   render() {
     return (
-      <div>
-        <h3>Tic tac toe</h3>
-        <h4>Statistics:</h4>
-        <p>{`X: ${this.props.scoreX}`}</p>
-        <p>{`O: ${this.props.scoreO}`}</p>
-        <Button
-          disabled={
-            this.props.gameStatus ||
-            this.props.squares
-              .map((square) => (square.player ? true : false))
-              .reduce((previousValue, currentValue) =>
-                previousValue && currentValue ? true : false
-              )
-              ? false
-              : true
-          }
-          text="Play again"
-          onClick={() => this.handlePlayAgain(this.winner)}
-        />
-        <Button
-          text="Reset statistics"
-          onClick={this.props.actionResetStatistics}
-        />
+      <div className="game__container">
+        <h3 className="title">Tic tac toe</h3>
+
+        <div className="score">
+          <p className="score__single">{`X: ${this.props.scoreX}`}</p>
+          <p className="score__single">{`O: ${this.props.scoreO}`}</p>
+        </div>
 
         <div className="game">
           {this.props.squares.map(({ id, player, disabled }, index) => (
             <div
               key={id}
               data-number={id}
-              className="game__square"
+              className="square"
               onClick={() =>
                 this.handlePlayerClick(this.props.turn, id, disabled)
               }
@@ -132,13 +107,33 @@ class Game extends Component {
                 className={
                   this.winCoordinates && this.winCoordinates.includes(index)
                     ? "color"
-                    : "not"
+                    : null
                 }
               >
                 {player}
               </p>
             </div>
           ))}
+        </div>
+        <div className="button__container">
+          <Button
+            disabled={
+              this.props.gameStatus ||
+              this.props.squares
+                .map((square) => (square.player ? true : false))
+                .reduce((previousValue, currentValue) =>
+                  previousValue && currentValue ? true : false
+                )
+                ? false
+                : true
+            }
+            text="Play again"
+            onClick={() => this.playAgain(this.winner)}
+          />
+          <Button
+            text="Reset score"
+            onClick={this.props.actionResetStatistics}
+          />
         </div>
       </div>
     );
@@ -160,7 +155,7 @@ const mapDispatchToProps = (dispatch) => ({
   changeTurn: (currentTurn) => {
     dispatch(ACTION_CHANGE_TURN(currentTurn));
   },
-  changePlayerScore: (player) => {
+  actionChangePlayerScore: (player) => {
     dispatch(ACTION_CHANGE_PLAYER_SCORE(player));
   },
   actionSetGameStatus: (status) => {

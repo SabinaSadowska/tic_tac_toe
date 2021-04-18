@@ -18,7 +18,7 @@ const INITIAL_STATE = {
   gameStatus: false,
 };
 
-export default (state = INITIAL_STATE, action) => {
+const game = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case GAME_ACTION_TYPES.SET_TYPE:
       return {
@@ -81,3 +81,5 @@ export default (state = INITIAL_STATE, action) => {
       return state;
   }
 };
+
+export default game;
