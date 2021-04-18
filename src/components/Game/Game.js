@@ -23,6 +23,8 @@ class Game extends Component {
     this.props.actionChangeTurn(currentTurn);
   }
 
+  winCoordinates = null;
+
   checkSquares(index1, index2, index3) {
     const squares = this.props.squares;
     if (
@@ -33,6 +35,7 @@ class Game extends Component {
       squares[index3].player !== null
     ) {
       let winner = squares[index2].player;
+      this.winCoordinates = [index1, index2, index3];
       if (winner === "x") {
         console.log("won x");
         this.props.changePlayerScore("x");
@@ -85,12 +88,9 @@ class Game extends Component {
 
   handlePlayAgain(winner) {
     winner = false;
+    this.winCoordinates = false;
     return this.props.actionPlayAgain();
   }
-
-  /* resetStatistics() {
-    return this.props.actionResetStatistics();
-  } */
 
   render() {
     return (
@@ -119,7 +119,7 @@ class Game extends Component {
         />
 
         <div className="game">
-          {this.props.squares.map(({ id, player, disabled }) => (
+          {this.props.squares.map(({ id, player, disabled }, index) => (
             <div
               key={id}
               data-number={id}
@@ -128,7 +128,15 @@ class Game extends Component {
                 this.handlePlayerClick(this.props.turn, id, disabled)
               }
             >
-              <p>{player}</p>
+              <p
+                className={
+                  this.winCoordinates && this.winCoordinates.includes(index)
+                    ? "color"
+                    : "not"
+                }
+              >
+                {player}
+              </p>
             </div>
           ))}
         </div>

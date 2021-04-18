@@ -19,3 +19,7 @@
   pointer-events: none;
   cursor: default;
 }
+
+.color {
+  color: red;
+}
