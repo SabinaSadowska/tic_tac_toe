@@ -15,6 +15,7 @@ const INITIAL_STATE = {
   turn: "x",
   scoreX: 0,
   scoreO: 0,
+  gameStatus: false,
 };
 
 export default (state = INITIAL_STATE, action) => {
@@ -23,7 +24,7 @@ export default (state = INITIAL_STATE, action) => {
       return {
         ...state,
         squares: state.squares.map((square) => {
-          if (square.id != action.id) {
+          if (square.id !== action.id) {
             return square;
           }
           return {
@@ -44,6 +45,37 @@ export default (state = INITIAL_STATE, action) => {
       } else {
         return { ...state, scoreO: state.scoreO + 1 };
       }
+    case GAME_ACTION_TYPES.SET_GAME_STATUS:
+      if (action.status) {
+        return {
+          ...state,
+          gameStatus: "win",
+        };
+      } else {
+        return {
+          ...state,
+          gameStatus: "draw",
+        };
+      }
+    case GAME_ACTION_TYPES.PLAY_AGAIN:
+      return {
+        ...state,
+        squares: state.squares.map((square) => ({
+          id: square.id,
+          player: null,
+          disabled: false,
+        })),
+
+        turn: "x",
+        gameStatus: false,
+      };
+
+    case GAME_ACTION_TYPES.RESET_STATISTICS:
+      return {
+        ...state,
+        scoreX: 0,
+        scoreO: 0,
+      };
 
     default:
       return state;

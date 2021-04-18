@@ -1,16 +1,21 @@
 import React, { Component } from "react";
 import "./game.css";
 import { connect } from "react-redux";
+import Button from "../../components/Button/Button";
 import {
   selectSquares,
   selectTurn,
   selectScoreX,
   selectScoreO,
+  selectGameStatus,
 } from "../../modules/game/game.selector";
 import {
   ACTION_SET_TYPE,
   ACTION_CHANGE_TURN,
   ACTION_CHANGE_PLAYER_SCORE,
+  ACTION_SET_GAME_STATUS,
+  ACTION_PLAY_AGAIN,
+  ACTION_RESET_STATISTICS,
 } from "../../modules/game/game.action";
 
 class Game extends Component {
@@ -28,20 +33,23 @@ class Game extends Component {
       squares[index3].player !== null
     ) {
       let winner = squares[index2].player;
-      if (winner == "x") {
+      if (winner === "x") {
         console.log("won x");
         this.props.changePlayerScore("x");
-        this.scoreX++;
+        this.props.actionSetGameStatus("win");
       } else {
         console.log("won o");
         this.props.changePlayerScore("o");
-        this.scoreO++;
+        this.props.actionSetGameStatus("win");
       }
+
       return true;
     } else {
       return false;
     }
   }
+
+  winner = false;
 
   checkWinner() {
     return this.checkSquares(0, 1, 2) ||
@@ -53,29 +61,63 @@ class Game extends Component {
       this.checkSquares(1, 4, 7) ||
       this.checkSquares(0, 3, 6) ||
       this.checkSquares(2, 4, 6)
-      ? "win"
+      ? (this.winner = true)
       : null;
+  }
+
+  checkStatus() {
+    return this.props.actionSetGameStatus(this.winner);
   }
 
   handlePlayerClick(player, squareId, disabled) {
     if (disabled) {
       return;
     }
-    if (this.checkWinner() === "win") {
+
+    if (this.props.gameStatus) {
       return;
     }
 
     this.props.actionSetType(player, squareId);
     this.props.changeTurn(player);
+    setTimeout(() => this.checkWinner(), 200);
   }
+
+  handlePlayAgain(winner) {
+    winner = false;
+    return this.props.actionPlayAgain();
+  }
+
+  /* resetStatistics() {
+    return this.props.actionResetStatistics();
+  } */
 
   render() {
     return (
       <div>
         <h3>Tic tac toe</h3>
         <h4>Statistics:</h4>
-        <p>{`X: ${this.props.scoreX || 0}`}</p>
-        <p>{`O: ${this.props.scoreO || 0}`}</p>
+        <p>{`X: ${this.props.scoreX}`}</p>
+        <p>{`O: ${this.props.scoreO}`}</p>
+        <Button
+          disabled={
+            this.props.gameStatus ||
+            this.props.squares
+              .map((square) => (square.player ? true : false))
+              .reduce((previousValue, currentValue) =>
+                previousValue && currentValue ? true : false
+              )
+              ? false
+              : true
+          }
+          text="Play again"
+          onClick={() => this.handlePlayAgain(this.winner)}
+        />
+        <Button
+          text="Reset statistics"
+          onClick={this.props.actionResetStatistics}
+        />
+
         <div className="game">
           {this.props.squares.map(({ id, player, disabled }) => (
             <div
@@ -89,7 +131,6 @@ class Game extends Component {
               <p>{player}</p>
             </div>
           ))}
-          {this.checkWinner()}
         </div>
       </div>
     );
@@ -99,7 +140,9 @@ class Game extends Component {
 const mapStateToProps = (state) => ({
   squares: selectSquares(state),
   turn: selectTurn(state),
-  //scoreX: selectScoreX(state),scoreO: selectScoreO(state),
+  scoreX: selectScoreX(state),
+  scoreO: selectScoreO(state),
+  gameStatus: selectGameStatus(state),
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -111,6 +154,15 @@ const mapDispatchToProps = (dispatch) => ({
   },
   changePlayerScore: (player) => {
     dispatch(ACTION_CHANGE_PLAYER_SCORE(player));
+  },
+  actionSetGameStatus: (status) => {
+    dispatch(ACTION_SET_GAME_STATUS(status));
+  },
+  actionPlayAgain: () => {
+    dispatch(ACTION_PLAY_AGAIN());
+  },
+  actionResetStatistics: () => {
+    dispatch(ACTION_RESET_STATISTICS());
   },
 });
 
