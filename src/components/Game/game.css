@@ -1,17 +1,25 @@
 * {
   box-sizing: border-box;
 }
+
+body {
+  --green: #0cca4a;
+  --white: #fff;
+  --light_grey: #c8d3d5;
+  --grey: #6e8387;
+}
+
 .game__container {
   height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #fff;
-  color: #6e8387;
+  background-color: var(--white);
+  color: var(--grey);
 }
 
 .title {
-  color: #0cca4a;
+  color: var(--green);
   font-size: 35px;
 }
 
@@ -39,11 +47,11 @@
   width: 120px;
   height: 120px;
   font-size: 55px;
-  border: 1px solid #c8d3d5;
+  border: 1px solid var(--light_grey);
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #fff;
+  background-color: var(--white);
 }
 
 .disabled {
@@ -52,7 +60,7 @@
 }
 
 .color {
-  color: #0cca4a;
+  color: var(--green);
 }
 
 .button__container {
